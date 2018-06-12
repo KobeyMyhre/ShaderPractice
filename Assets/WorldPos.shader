@@ -3,9 +3,11 @@
 		_Color ("Color", Color) = (1,1,1,1)
 		_MainTex ("Albedo (RGB)", 2D) = "white" {}
 		_SecondaryTex("Albedo2 (RGB)", 2D) = "white" {}
-		_Position("World Position", vector) = (1,1,1,1)
+		_NoiseTex("Noise", 2D) = "white"{} 
 		//_Position("World Position", vector) = (1,1,1,1)
-		_Radius("Sphere Radius",range(1,10)) = 1
+		
+		_Radius("Sphere Radius",range(1,50)) = 1
+		_Position("World Position", vector) = (1,1,1,1)
 		_BorderWidth("Border Width", range(0,1)) = 1
 		_Test("Test Lerp",range(0,1)) = 0.5
 	}
@@ -21,9 +23,11 @@
 		#pragma target 3.0
 
 		sampler2D _MainTex;
+		sampler2D _NoiseTex;
 		sampler2D _SecondaryTex;
 		struct Input {
 			float2 uv_MainTex;
+			float2 uv_NoiseTex;
 			float3 worldPos;
 		};
 
@@ -42,9 +46,11 @@
 
 		void surf (Input IN, inout SurfaceOutputStandard o) {
 			
+			float noise = tex2Dlod(_NoiseTex, float4(IN.uv_NoiseTex,0,0));
+
 			float3 dis = distance(_Position.xyz, IN.worldPos);
 			
-			float3 sphere = 1 - (saturate(dis / _Radius));
+			float3 sphere = 1 - (saturate(dis / _Radius * noise));
 			
 			
 			// Albedo comes from a texture tinted by color
